@@ -17,6 +17,16 @@ func TestNewListHasZeroLength(t *testing.T) {
 	}
 }
 
+func TestNewListIsEmpty(t *testing.T) {
+	expected := true
+	l := linkedlist.New[int]()
+
+	actual := l.Empty()
+	if actual != expected {
+		t.Fatal("New list should be empty")
+	}
+}
+
 func TestAppendIncreasesLength(t *testing.T) {
 	var expected uint = 1
 	l := linkedlist.New[int]()
@@ -42,20 +52,50 @@ func TestAppendTwiceInsertsElementsInOrder(t *testing.T) {
 		t.Fatalf("List after appending should have a length of %d, got %d instead", expectedLength, actualLength)
 	}
 
-	n, err := l.GetHead()
+	n, err := l.PopHead()
 	if err != nil {
-		t.Fatal(fmt.Errorf("Failed to dereference list: %w", err))
+		t.Fatal(fmt.Errorf("Failed to dereference list the first time: %w", err))
 	}
-	if n.Value != firstVal {
-		t.Fatalf("Expected first value to be %d, got %d instead", firstVal, n.Value)
+	if n != firstVal {
+		t.Fatalf("Expected first value to be %d, got %d instead", firstVal, n)
 	}
 
-	n2, err := n.GetNext()
+	n, err = l.PopHead()
 	if err != nil {
-		t.Fatal(fmt.Errorf("Failed to dereference first node: %w", err))
+		t.Fatal(fmt.Errorf("Failed to dereference list the second time: %w", err))
 	}
-	if n2.Value != secondVal {
-		t.Fatalf("Expected second value to be %d, got %d instead", secondVal, n2.Value)
+	if n != secondVal {
+		t.Fatalf("Expected second value to be %d, got %d instead", secondVal, n)
+	}
+}
+
+func TestPrependTwiceInsertsElementsInReverse(t *testing.T) {
+	var expectedLength uint = 2
+	firstVal, secondVal := 1234, 4321
+	l := linkedlist.New[int]()
+
+	l.Prepend(firstVal)
+	l.Prepend(secondVal)
+
+	actualLength := l.GetLength()
+	if expectedLength != actualLength {
+		t.Fatalf("List after prepending should have a length of %d, got %d instead", expectedLength, actualLength)
+	}
+
+	n, err := l.PopHead()
+	if err != nil {
+		t.Fatal(fmt.Errorf("Failed to dereference list the first time: %w", err))
+	}
+	if n != secondVal {
+		t.Fatalf("Expected first value to be %d, got %d instead", secondVal, n)
+	}
+
+	n, err = l.PopHead()
+	if err != nil {
+		t.Fatal(fmt.Errorf("Failed to dereference list the second time: %w", err))
+	}
+	if n != firstVal {
+		t.Fatalf("Expected second value to be %d, got %d instead", firstVal, n)
 	}
 }
 
