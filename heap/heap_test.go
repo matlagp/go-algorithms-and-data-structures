@@ -2,6 +2,7 @@ package heap
 
 import (
 	"math"
+	"slices"
 	"testing"
 
 	"pgregory.net/rapid"
@@ -65,4 +66,64 @@ func (h *Heap[int]) isValidHeap() bool {
 	}
 
 	return true
+}
+
+func TestInsert(t *testing.T) {
+	rapid.Check(t, func(t *rapid.T) {
+		initHeap := rapid.SliceOf(rapid.Int()).Draw(t, "initHeap")
+		append := rapid.SliceOf(rapid.Int()).Draw(t, "append")
+
+		h, err := BuildHeapInPlace(initHeap)
+		if err != nil {
+			t.Fatalf("error while building heap: %v", err)
+		}
+		if !h.isValidHeap() {
+			t.Fatalf("invalid heap: %v", h)
+		}
+
+		for _, elem := range append {
+			err = h.Insert(elem)
+			if err != nil  {
+				t.Fatalf("error while inserting: %v", err)
+			}
+			if !h.isValidHeap() {
+				t.Fatalf("invalid heap: %v", h)
+			}
+		}
+	})
+}
+
+func TestExtract(t *testing.T) {
+	rapid.Check(t, func(t *rapid.T) {
+		initHeap := rapid.SliceOf(rapid.Int()).Draw(t, "initHeap")
+		expected := slices.Clone(initHeap)
+		actual := make([]int, len(expected))
+
+		h, err := BuildHeapInPlace(initHeap)
+		if err != nil {
+			t.Fatalf("error while building heap: %v", err)
+		}
+		if !h.isValidHeap() {
+			t.Fatalf("invalid heap: %v", h)
+		}
+
+		for i := range initHeap {
+			elem, err := h.Extract()
+			actual[i] = elem
+			if err != nil  {
+				t.Fatalf("error while extracting: %v", err)
+			}
+		}
+
+		_, err = h.Extract()
+		if err == nil {
+			t.Fatal("expected error when extracting from empty heap, but got none")
+		}
+
+		slices.Sort(expected)
+		slices.Sort(actual)
+		if !slices.Equal(actual, expected) {
+			t.Fatal("extracting all elements from heap should return same elements as those inserted")
+		}
+	})
 }

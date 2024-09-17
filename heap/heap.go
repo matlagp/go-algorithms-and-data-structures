@@ -11,8 +11,10 @@ type Index int
 type IndexOverflowError struct {
 	i Index
 }
+type EmptyHeapError struct {}
 
-func (i *IndexOverflowError) Error() string { return "heap index overflow" }
+func (e *IndexOverflowError) Error() string { return "heap index overflow" }
+func (e *EmptyHeapError) Error() string { return "empty heap" }
 
 func (i Index) Parent() (Index, error) {
 	if i <= 0 {
@@ -125,5 +127,45 @@ func (h *Heap[T]) DestructiveSort() error {
 			return err
 		}
 	}
+	return nil
+}
+
+func (h *Heap[T]) Peek() (T, error) {
+	var ret T
+	if h.last < 0 {
+		return ret, &EmptyHeapError{}
+	}
+	return h.content[0], nil
+}
+
+func (h *Heap[T]) Extract() (T, error) {
+	ret, err := h.Peek()
+	if err != nil {
+		return ret, err
+	}
+	h.content[0] = h.content[h.last]
+	h.last--
+	h.maxHeapify(0)
+	return ret, nil
+}
+
+func (h *Heap[T]) Insert(val T) error {
+	h.content = append(h.content, val)
+	h.last++
+
+	i := h.last
+	for i > 0 {
+		p, err := i.Parent()
+		if err != nil {
+			return err
+		}
+		if h.content[p] < h.content[i] {
+			h.swap(i, p)
+			i = p
+		} else {
+			break
+		}
+	}
+
 	return nil
 }
