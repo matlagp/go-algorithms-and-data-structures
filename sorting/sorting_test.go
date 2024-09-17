@@ -45,3 +45,7 @@ func TestMergeSort(t *testing.T) {
 func TestQuickSort(t *testing.T) {
 	perform(t, sorting.QuickSort)
 }
+
+func TestHeapSort(t *testing.T) {
+	perform(t, sorting.HeapSort)
+}

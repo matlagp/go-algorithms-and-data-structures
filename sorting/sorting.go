@@ -2,6 +2,8 @@ package sorting
 
 import (
 	"cmp"
+
+	"github.com/matlagp/go-algorithms-and-data-structures/heap"
 )
 
 func swap[T any](a *T, b *T) {
@@ -120,4 +122,12 @@ func partition[T cmp.Ordered](input []T, l, r int) int {
 
 	swap(&input[i], &input[r])
 	return i
+}
+
+func HeapSort[T cmp.Ordered](input []T) {
+	h, err := heap.BuildHeapInPlace(input)
+	if err != nil {
+		return
+	}
+	h.DestructiveSort()
 }
